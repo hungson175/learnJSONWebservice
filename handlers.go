@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -23,9 +24,25 @@ func TodoIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func TodoShow(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	vars := mux.Vars(r)
-	todoID := vars["todoID"]
-	fmt.Fprintln(w, "Todo show: ", todoID)
+	todoID, err := strconv.Atoi(vars["todoID"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+		return
+	}
+	for _, t := range todos {
+		if t.ID == todoID {
+			w.WriteHeader(http.StatusOK)
+			if err := json.NewEncoder(w).Encode(t); err != nil {
+				panic(err)
+			}
+			return
+		}
+	}
 }
 
 func TodoCreate(w http.ResponseWriter, r *http.Request) {
