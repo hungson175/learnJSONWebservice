@@ -1,6 +1,11 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/hungson175/learnJSONWebservice/controllers"
+	"github.com/hungson175/learnJSONWebservice/data"
+)
 
 type Route struct {
 	Name        string
@@ -11,27 +16,28 @@ type Route struct {
 
 type Routes []Route
 
+var todoController = &controllers.TodoController{ListTodos: data.RepoListTodos()}
 var routes = Routes{
 	Route{
 		"Index",
 		"GET",
 		"/",
-		Index},
+		todoController.Index},
 	Route{
 		"TodoIndex",
 		"GET",
 		"/todos",
-		TodoIndex},
+		todoController.TodoIndex},
 	Route{
 		"TodoShow",
 		"GET",
 		"/todos/{todoID}",
-		TodoShow,
+		todoController.TodoShow,
 	},
 	Route{
 		"TodoCreate",
 		"POST",
 		"/todos",
-		TodoCreate,
+		todoController.TodoCreate,
 	},
 }

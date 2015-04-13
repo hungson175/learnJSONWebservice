@@ -1,4 +1,4 @@
-package main
+package data
 
 import "fmt"
 
@@ -12,6 +12,9 @@ func init() {
 	RepoCreateTodo(Todo{Name: "Write Full website: Go & Gorilla"})
 }
 
+func RepoListTodos() Todos {
+	return todos
+}
 func RepoCreateTodo(t Todo) Todo {
 	fmt.Printf("Todo %s ### local:addr(t) = %p\n", t.Name, &t)
 	currentID++

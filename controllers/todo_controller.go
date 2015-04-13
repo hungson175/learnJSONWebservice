@@ -1,4 +1,4 @@
-package main
+package controllers
 
 import (
 	"encoding/json"
@@ -9,22 +9,27 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/hungson175/learnJSONWebservice/data"
 )
 
-func Index(w http.ResponseWriter, r *http.Request) {
+type TodoController struct {
+	ListTodos data.Todos
+}
+
+func (ct *TodoController) Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to JSON Webservice")
 }
 
-func TodoIndex(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+func (ct *TodoController) TodoIndex(w http.ResponseWriter, r *http.Request) {
+	setContentJson(&w)
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(todos); err != nil {
+	if err := json.NewEncoder(w).Encode(ct.ListTodos); err != nil {
 		panic(err)
 	}
 }
 
-func TodoShow(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+func (ct *TodoController) TodoShow(w http.ResponseWriter, r *http.Request) {
+	setContentJson(&w)
 	vars := mux.Vars(r)
 	todoID, err := strconv.Atoi(vars["todoID"])
 	if err != nil {
@@ -34,7 +39,7 @@ func TodoShow(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	for _, t := range todos {
+	for _, t := range ct.ListTodos {
 		if t.ID == todoID {
 			w.WriteHeader(http.StatusOK)
 			if err := json.NewEncoder(w).Encode(t); err != nil {
@@ -45,8 +50,8 @@ func TodoShow(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func TodoCreate(w http.ResponseWriter, r *http.Request) {
-	var todo Todo
+func (ct *TodoController) TodoCreate(w http.ResponseWriter, r *http.Request) {
+	var todo data.Todo
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -55,17 +60,21 @@ func TodoCreate(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if err := json.Unmarshal(body, &todo); err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		setContentJson(&w)
 		w.WriteHeader(422) //unprocessable entity
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
 	}
-	t := RepoCreateTodo(todo)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	t := data.RepoCreateTodo(todo)
+	setContentJson(&w)
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(t); err != nil {
 		panic(err)
 	}
 
+}
+
+func setContentJson(w *http.ResponseWriter) {
+	(*w).Header().Set("Content-Type", "application/json; charset=UTF-8")
 }
