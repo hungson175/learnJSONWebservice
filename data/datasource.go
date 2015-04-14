@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -22,7 +23,9 @@ func (err NotImplementedError) Error() string {
 }
 
 func NewDataSource() (*DataSource, error) {
-	db, err := sql.Open("mysql", "root:dangthaison@tcp(127.0.0.1:3306)/todos_app")
+	mysqlUsername := os.Getenv("MYSQL_USERNAME")
+	mysqlPassword := os.Getenv("MYSQL_PASSWORD")
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/todos_app", mysqlUsername, mysqlPassword))
 	return &DataSource{db}, err
 }
 
