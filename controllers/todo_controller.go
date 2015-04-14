@@ -9,11 +9,13 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+
 	"github.com/hungson175/learnJSONWebservice/data"
 )
 
 type TodoController struct {
-	ListTodos data.Todos
+	//ListTodos data.Todos
+	DataSource *data.DataSource
 }
 
 func (ct *TodoController) Index(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +25,8 @@ func (ct *TodoController) Index(w http.ResponseWriter, r *http.Request) {
 func (ct *TodoController) TodoIndex(w http.ResponseWriter, r *http.Request) {
 	setContentJson(&w)
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(ct.ListTodos); err != nil {
+	list := ct.DataSource.GetTodos()
+	if err := json.NewEncoder(w).Encode(list); err != nil {
 		panic(err)
 	}
 }
@@ -40,7 +43,7 @@ func (ct *TodoController) TodoShow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	todo := data.RepoFindTodo(todoID)
+	todo, err := ct.DataSource.GetTodo(todoID)
 	if err := json.NewEncoder(w).Encode(todo); err != nil {
 		panic(err)
 	}
@@ -62,10 +65,10 @@ func (ct *TodoController) TodoCreate(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 	}
-	t := data.RepoCreateTodo(todo)
+	createdTodo, _ := ct.DataSource.CreateTodo(&todo)
 	setContentJson(&w)
 	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(t); err != nil {
+	if err := json.NewEncoder(w).Encode(createdTodo); err != nil {
 		panic(err)
 	}
 

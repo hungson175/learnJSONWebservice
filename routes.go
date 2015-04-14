@@ -16,28 +16,36 @@ type Route struct {
 
 type Routes []Route
 
-var todoController = &controllers.TodoController{ListTodos: data.RepoListTodos()}
-var routes = Routes{
-	Route{
+var routes = Routes{}
+
+func init() {
+	ds, err := data.NewDataSource()
+	if err != nil {
+		panic(err)
+	}
+	todoController := &controllers.TodoController{DataSource: ds}
+	routes = Routes{Route{
 		"Index",
 		"GET",
 		"/",
 		todoController.Index},
-	Route{
-		"TodoIndex",
-		"GET",
-		"/todos",
-		todoController.TodoIndex},
-	Route{
-		"TodoShow",
-		"GET",
-		"/todos/{todoID}",
-		todoController.TodoShow,
-	},
-	Route{
-		"TodoCreate",
-		"POST",
-		"/todos",
-		todoController.TodoCreate,
-	},
+		Route{
+			"TodoIndex",
+			"GET",
+			"/todos",
+			todoController.TodoIndex},
+		Route{
+			"TodoShow",
+			"GET",
+			"/todos/{todoID}",
+			todoController.TodoShow,
+		},
+		Route{
+			"TodoCreate",
+			"POST",
+			"/todos",
+			todoController.TodoCreate,
+		},
+	}
+
 }

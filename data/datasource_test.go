@@ -12,6 +12,11 @@ func init() {
 	fmt.Println("Run test for datasource")
 }
 
+//TODO: Wrapper all test to recover the state of the database as original
+//TODO: "uncomment" testUpdate, testDelete
+// func WrapperTestFuction(fn func(t *testing.T)) func(t *testing.T) {
+
+// }
 func TestCreateAndRead(t *testing.T) {
 	ds, err := NewDataSource()
 	if err != nil {
@@ -52,18 +57,25 @@ func createSampleData(ds *DataSource, t *testing.T) (Todos, error) {
 	var err error
 	ds.ClearData()
 	for _, todo := range todoList {
-		err = ds.CreateTodo(&todo)
+		resTodo, err := ds.CreateTodo(&todo)
 		if err != nil {
 			t.Errorf("Error by creating todo: %v\n", err)
 			return todoList, err
+		}
+		if !todoEqualsExceptID(resTodo, &todo) {
+			t.Errorf("Expected %v but result %v", todo, resTodo)
 		}
 	}
 	return todoList, err
 }
 
-func TestUpdate(test *testing.T) {
+func testUpdate(test *testing.T) {
 	log.SetFlags(log.Lshortfile)
-	ds, _ := NewDataSource()
+	ds, err := NewDataSource()
+	if err != nil {
+		test.Errorf("Cannot create Todos datasource")
+	}
+
 	defer ds.Close()
 	createSampleData(ds, test)
 	dbTodos := ds.GetTodos()
@@ -83,9 +95,12 @@ func TestUpdate(test *testing.T) {
 	}
 }
 
-func TestDelete(test *testing.T) {
+func testDelete(test *testing.T) {
 	log.SetFlags(log.Lshortfile)
-	ds, _ := NewDataSource()
+	ds, err := NewDataSource()
+	if err != nil {
+		test.Errorf("Cannot create Todos datasource")
+	}
 	defer ds.Close()
 	createSampleData(ds, test)
 	dbTodos := ds.GetTodos()

@@ -28,10 +28,13 @@ func NewDataSource() (*DataSource, error) {
 
 //CRUD
 //Create
-func (ds *DataSource) CreateTodo(t *Todo) error {
+func (ds *DataSource) CreateTodo(t *Todo) (*Todo, error) {
 	db := ds.db
-	_, err := db.Exec("insert into todos (`name`,`completed`,`due`) values (?,?,?)", t.Name, t.Completed, t.Due)
-	return err
+	result, err := db.Exec("insert into todos (`name`,`completed`,`due`) values (?,?,?)", t.Name, t.Completed, t.Due)
+	newTD := *t
+	newId, _ := result.LastInsertId()
+	newTD.ID = int(newId)
+	return &newTD, err
 }
 
 //Read
