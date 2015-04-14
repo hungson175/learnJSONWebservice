@@ -39,14 +39,10 @@ func (ct *TodoController) TodoShow(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	for _, t := range ct.ListTodos {
-		if t.ID == todoID {
-			w.WriteHeader(http.StatusOK)
-			if err := json.NewEncoder(w).Encode(t); err != nil {
-				panic(err)
-			}
-			return
-		}
+	w.WriteHeader(http.StatusOK)
+	todo := data.RepoFindTodo(todoID)
+	if err := json.NewEncoder(w).Encode(todo); err != nil {
+		panic(err)
 	}
 }
 

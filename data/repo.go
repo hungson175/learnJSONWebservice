@@ -8,7 +8,7 @@ var todos Todos
 func init() {
 	t := Todo{Name: "Write Webservice: Go & Gorilla"}
 	fmt.Printf("Todo %s ### original:addr(t) = %p\n", t.Name, &t)
-	RepoCreateTodo(Todo{Name: "Write Webservice: Go & Gorilla"})
+	RepoCreateTodo(t)
 	RepoCreateTodo(Todo{Name: "Write Full website: Go & Gorilla"})
 }
 
