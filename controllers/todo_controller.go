@@ -9,8 +9,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-
-	"github.com/hungson175/learnJSONWebservice/data"
+	"github.com/hungson175/learnJsonWebservice/data"
 )
 
 type TodoController struct {

@@ -32,9 +32,26 @@ func (ds *DataSource) CreateTodo(t *Todo) (*Todo, error) {
 	db := ds.db
 	result, err := db.Exec("insert into todos (`name`,`completed`,`due`) values (?,?,?)", t.Name, t.Completed, t.Due)
 	newTD := *t
-	newId, _ := result.LastInsertId()
-	newTD.ID = int(newId)
+	newID, _ := result.LastInsertId()
+	newTD.ID = int(newID)
 	return &newTD, err
+}
+
+func (ds *DataSource) InsertWithExactID(list Todos) error {
+	db := ds.db
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	for _, todo := range list {
+		_, err := tx.Exec("insert into todos (`name`,`completed`,`due`) values (?,?,?)", todo.Name, todo.Completed, todo.Due)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	err = tx.Commit()
+	return err
 }
 
 //Read

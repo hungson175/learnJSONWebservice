@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/hungson175/learnJSONWebservice/controllers"
-	"github.com/hungson175/learnJSONWebservice/data"
+	"github.com/hungson175/learnJsonWebservice/controllers"
+	"github.com/hungson175/learnJsonWebservice/data"
 )
 
 type Route struct {

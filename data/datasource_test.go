@@ -8,8 +8,28 @@ import (
 	"time"
 )
 
-func init() {
+func TestAll(test *testing.T) {
+	log.SetFlags(log.Lshortfile)
 	fmt.Println("Run test for datasource")
+	ds, err := NewDataSource()
+	if err != nil {
+		panic(err)
+	}
+	defer ds.Close()
+	todos := ds.GetTodos()
+	//restore
+	defer func() {
+		ds.ClearData()
+		ds.InsertWithExactID(todos)
+	}()
+	testFunctions := []func(ds *DataSource, test *testing.T){
+		testCreateAndRead,
+		testUpdate,
+		testDelete,
+	}
+	for _, fn := range testFunctions {
+		fn(ds, test)
+	}
 }
 
 //TODO: Wrapper all test to recover the state of the database as original
@@ -17,13 +37,13 @@ func init() {
 // func WrapperTestFuction(fn func(t *testing.T)) func(t *testing.T) {
 
 // }
-func TestCreateAndRead(t *testing.T) {
-	ds, err := NewDataSource()
-	if err != nil {
-		t.Errorf("Cannot create Todos datasource")
-	}
-	defer ds.Close()
-	todoList, err := createSampleData(ds, t)
+func testCreateAndRead(ds *DataSource, t *testing.T) {
+	// ds, err := NewDataSource()
+	// if err != nil {
+	// 	t.Errorf("Cannot create Todos datasource")
+	// }
+	// defer ds.Close()
+	todoList, _ := createSampleData(ds, t)
 	resTodos := ds.GetTodos()
 	if len(resTodos) != len(todoList) {
 		t.Errorf("Get/Create todos failed: Inserted %v rows , but Get return %v rows\n", len(todoList), len(resTodos))
@@ -69,14 +89,14 @@ func createSampleData(ds *DataSource, t *testing.T) (Todos, error) {
 	return todoList, err
 }
 
-func testUpdate(test *testing.T) {
-	log.SetFlags(log.Lshortfile)
-	ds, err := NewDataSource()
-	if err != nil {
-		test.Errorf("Cannot create Todos datasource")
-	}
+func testUpdate(ds *DataSource, test *testing.T) {
 
-	defer ds.Close()
+	// ds, err := NewDataSource()
+	// if err != nil {
+	// 	test.Errorf("Cannot create Todos datasource")
+	// }
+
+	//defer ds.Close()
 	createSampleData(ds, test)
 	dbTodos := ds.GetTodos()
 	for _, oldTodo := range dbTodos {
@@ -95,13 +115,13 @@ func testUpdate(test *testing.T) {
 	}
 }
 
-func testDelete(test *testing.T) {
-	log.SetFlags(log.Lshortfile)
-	ds, err := NewDataSource()
-	if err != nil {
-		test.Errorf("Cannot create Todos datasource")
-	}
-	defer ds.Close()
+func testDelete(ds *DataSource, test *testing.T) {
+	// log.SetFlags(log.Lshortfile)
+	// ds, err := NewDataSource()
+	// if err != nil {
+	// 	test.Errorf("Cannot create Todos datasource")
+	// }
+	// defer ds.Close()
 	createSampleData(ds, test)
 	dbTodos := ds.GetTodos()
 	for i := 0; i < len(dbTodos); i++ {
