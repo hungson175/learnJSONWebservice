@@ -34,6 +34,9 @@ func NewDataSource() (*DataSource, error) {
 func (ds *DataSource) CreateTodo(t *Todo) (*Todo, error) {
 	db := ds.db
 	result, err := db.Exec("insert into todos (`name`,`completed`,`due`) values (?,?,?)", t.Name, t.Completed, t.Due)
+	if err != nil {
+		return nil, err
+	}
 	newTD := *t
 	newID, _ := result.LastInsertId()
 	newTD.ID = int(newID)
